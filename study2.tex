@@ -1,0 +1,113 @@
+\section{Study 2: Real-time Mediation}
+The goal in this study was to use a real-time load classifier to mediate notifications to the user based on their task load. We modified the classification model that was built and analyzed in the previous study to work with streaming data. In particular, the model trained on data from the non-mediated condition with a window size of 5 seconds and step size of 1 second was used. Compared to the other window and step size pairs that were analyzed, this was the one that gave the most promising results during the pilot experiments.
+
+The classifier reads input from the pupil dilation data stream and outputs a \{T1,T2\} classification every second. Since at this preliminary stage, we are only detecting what tasks the user is engaged in, we make the assumption that if the user is multitasking, i.e \{T1,T2\} = \{1,1\}, then the user is experiencing high load. In the future, we would like to be able to make more fine grained estimations about user load within each task (for example, T1 = 0, 1, 2, 3, etc., based on difficulty of the primary driving task).   
+
+The experimental setup is similar to the one used in the previous study with some modifications to the design and tasks. These changes are described in detail below.
+
+\subsection{Design}
+Compared to the previous study, notifications were only presented using the audio modality. The study was designed as a repeated measures within subject study with only one independent variable, i.e. non-mediated (control) vs. mediated (test) conditions. To control for possible effects of order the study was counterbalanced. 
+
+\subsection{Participants}
+10 people (all male) participated in our study recruited through a call sent out to students selected randomly from a graduate school population.
+
+\subsection{Tasks}
+Since notifications are what the system needs to mediate, it cannot be used as the secondary task (T2) that the classifier detects. In this study a gear changing task is used instead as the secondary task. 
+ 
+
+\subsubsection{Primary Task (T1): ConTRe}
+The primary task remains the same as in the first user study. The participant has to track the yellow cylinder with the blue cylinder which is controlled via the steering wheel. The participant simultaneously has to respond to the red and green lights on the yellow cylinder by depressing the brake and accelerator pedals, respectively. The ConTRe task was set to alternate between periods of low and high workloads as described in the first study. 
+
+
+\subsubsection{Secondary Task (T2): Gear Change}
+A laptop screen is placed in front of the simulator such that its contents are easily visible below the yellow and blue cylinders presented on the simulator screen. Numbers from 1-6 are presented on the laptop screen, which correspond to the gears on the gear shifter which is included with the Logitech G27 Racing Wheel. The user was asked to shift to the right gear when the number changed on the screen. To create a high task load for the user, the gear number only changed when the ConTRe task was in its high load setting. The gear number was set to change every 1-3 seconds. 
+
+\subsubsection{Mediated Task: Notifications}
+The notification task is a simplified version of the one used in the previous study, where recall has been eliminated. The user is not presented with isolated letters that they are required to remember, and consequently the simulator is never paused. In this study, notifications only consist of math and sentence prompts that the user responds to with a true or false.  
+
+\subsection{Apparatus and Sensors}
+The apparatus used to conduct the experiment was the same as before. With regards to the physiological sensors, only the Pupil Pro headset was worn by the user as pupil dilation was the lone physiological measure of interest
+
+\subsection{Methodology}
+Participants were guided through an informed consent process, followed by an overview of the study. The participant was then seated in the simulator, and was asked to put on the Pupil Pro headset. They were instructed on how to perform the ConTRe task. Once comfortable with the task, the secondary gear change task was introduced. After this the math and sentence notifications were demonstrated to the user. Once the user was familiar with all the tasks the experimental trials were run. Each participant did two trials, one in which the notifications were mediated based on task load, and one in which they were not. 
+
+Notifications were mediated by delaying them if they haven't started playing. If the user became loaded while a notification was playing, the notification would cut off and repeat itself when the user was not loaded. For better user experience, a trade-off had to be made between cutting off a notification, and confidence in the load detection. A trigger-happy system that cuts off a notification every time time a \{1,1\} is output by the classifier can be annoying to the user. Based on pilot studies, the protocol was set to delay or cut-off notifications anytime a series of either [\{1,1\}, \{1,1\}] or [\{1,1\}, \{1,0\}, \{1,1\}] classifications was output by the classifier. The system would then wait for a series of five \{1,0\} classifications before resuming delivery of notifications.  
+
+\subsection{Measures}
+Quantitative performance data on primary, secondary and mediated tasks were collected. From the primary ConTRe task, we collected the following: steering deviation, i.e. the difference in distance between the reference cylinder and the tracking cylinder (sampled at 570 Hz); reaction times to respond to the red and green lights, i.e. the amount of time from when the light went off to when the correct pedal was depressed; and the error rate of depressing the wrong pedal. These measures were automatically recorded by the simulator. Per user, there was an average of 13.7 and 23.8 acceleration stimulus points in the non-mediated and mediated conditions, respectively. Similarly, an average of 11.2 and 21.3 brake stimulus points were recorded in the non-mediated and mediated conditions, respectively. For each user in each condition, the mean steering deviation, reaction times and reaction errors were calculated.  
+
+From the secondary gear changing task, the number of tries the user took to get to the right gear, and the number of times they didn't succeed are calculated. The mean of these measures for each user in both condition was also calculated. Per user, there was an average of 28.3 stimulus points in the non-mediated condition, and 52.2 stimulus points in the mediated condition. 
+
+For performance on the mediated notification task, the response times for math and sentence prompts were computed. This is the time from when the notification was presented to the driver, to when they respond to indicate true or false. The mean response times for math and sentences are then recorded for each user in every condition. The errors in the responses, and the mean per user was also calculated for each condition. There was an average of 7.5 math and sentence prompts per user in each condition. 
+
+The outputs from the classifier, which occur every second, were also recorded for the mediated condition. These will be analyzed to shed light on how the classifier's outputs could inform the systems mediation behavior.
+
+\subsection{Results}
+Below we report on results from the experiment. We look at mediation effects on each task by collectively analyzing their different measures. Since this presents three comparisons, we use the Bonferroni adjusted alpha levels of .017 per test (.05/3) to control for Type I errors. To perform the analysis for each task, we use a multivariate ANOVA (MANOVA) using their respective performance measures as dependent variables. As opposed to running multiple univariate F tests for each dependent variable, MANOVA has the advantage of reducing the likelihood of a Type I error, and revealing differences not discovered by ANOVA tests~\cite{warne2014}. We also analyze classifier performance to shed light on the trade-off between sensitivity and specificity.
+
+\begin{table}
+\centering
+\begin{tabular}{@{}rcrrr@{}}\toprule
+Performance Measures & \phantom{a} & M & N & \textit{p}\\
+ \midrule
+\multicolumn{1}{l}{\textit{Primary Contre Task \phantom{abcabcabc}}} \\
+ Steering Deviation (\%)      && 22.0 & 23.1 & .47 \\
+ Accel Reaction Time (ms)     && 980  & 1014 & .67 \\
+ Brake Reaction Time (ms)     && 1117 & 1157 & .47 \\
+ Accel Response Error Rate    && 0.34 & 0.23 & .07 \\
+ Brake Response Error Rate    && 0.25 & 0.32 & \textbf{.05} \\
+  \midrule
+\multicolumn{1}{l}{\textit{Secondary Gear Task }} \\
+ Attempts per stimulus        && 1.15 & 1.26 & \textbf{.015} \\
+ Success Rate                 && 0.22 & 0.31 & \textbf{.05} \\
+ \midrule
+\multicolumn{1}{l}{\textit{Mediated Notification Task}} \\
+ Math Reaction Time (s)       && 2.02 & 2.30 & .19 \\
+ Sent. Reaction Time (s)      && 2.30 & 2.53 & .32 \\
+ Math Response Error Rate     && 0.08 & 0.08 & .82 \\
+ Sent. Response Error Rate    && 0.22 & 0.27 & .33 \\
+ \bottomrule
+\end{tabular}
+\caption{Population-based ROC AUC Scores under different timing and modality conditions.}
+\label{Tab:T123}
+\end{table}
+
+\subsubsection{Mediation Effects}
+The analysis of mediation effect on the primary ConTRe task using a repeated measures MANOVA showed no significant effect, \textit{F}(5,5)=1.44, \textit{p}=.35. The means for each of the five primary task measures in both conditions, and the paired t-test two-tailed p-values are listed in Table~\ref{Tab:T123}.
+
+For the secondary gear changing task, a repeated measures MANOVA showed a significant effect, \textit{F}(2,8)=7.42, \textit{p}=.015. Further analysis of each of the dependent variables showed a significant different in the mean number of tries the user took to get to the right gear between the mediated (\textit{M}=1.15, \textit{SD}=0.16) and non-mediated (\textit{M}=1.26, \textit{SD}=0.14) conditions, \textit{t}(9)=-3.72 , p=.004. There was also a slightly significant difference in the failure rates between the mediated (\textit{M}=0.22, \textit{SD}=0.05) and non-mediated (\textit{M}=0.31, \textit{SD}=0.13) conditions, \textit{t}(9)=-2.26 , p=.05. These are listed in Table~\ref{Tab:T123}.
+
+A repeated measures MANOVA for the mediated notification task revealed no significant effect, \textit{F}(4,6)=0.98, \textit{p}=.48. The means for each of the four notification task measures in both conditions, and the paired t-test two-tailed p-values are listed in Table~\ref{Tab:T123}.
+
+\begin{table}
+\centering
+\begin{tabular}{@{}rcrrr@{}}\toprule
+System Stimulus & \phantom{a} & Sens. & Spec. & Acc.\\
+ \midrule
+ every \textit{H} and \textit{L} && 40 & 72 & 61 \\
+ \textit{H} 
+ && 90 & 19 & 56 \\
+ \midrule
+ \textit{HH} or \textit{HLH}
+ && 83 & 42 & 63 \\
+ \textit{HHH} 
+ && 74 & 68 & 71 \\
+ \textit{HHHH} 
+ && 58 & 82 & 70 \\
+%  \textit{HHHHHH}
+%  && 46 & 89 & 67 \\
+
+ \bottomrule
+\end{tabular}
+\caption{Population-based ROC AUC Scores under different timing and modality conditions.}
+\label{Tab:Spec}
+\end{table}
+
+\subsubsection{Classifier Performance}
+Since the classifications are done on a sliding window, we can expect a lag from the onset of high load to when the classifier output indicates so. Another reason for the delay in classifications might be that even though a high load is being imposed on the user, it might take a couple of seconds for them to experience it as such. By performing cross-correlation of time-shifted classification outputs with the alternating low and high load conditions that each user was subjected to, the time-shift at which the cross-correlations were maximum were determined. Across users, the average optimal time-shift was 4.9 seconds, with a standard deviation of 1.44. For further analysis, this number was rounded up, and the classification outputs were time-shifted by 5 seconds for each user. For simplicity, we represent a \{1,0\} classifier output as \textit{L} and a a \{1,1\} classifier output as \textit{H}. 
+
+By being overly eager or overly cautious, a system can display two extremes in how it uses the classifier outputs to inform its mediation behavior. In case of the former, the system reacts immediately to every \textit{L} and \textit{H} being output by the classifier. We would expect the classifier to have high specificity, as it immediately corrects its behavior. In case of the latter, the system is very cautious about interrupting the user and reacts to the \textit{H} but ignores the \textit{L}. It is highly sensitive to an \textit{H} and immediately delays or cuts off a notification, even if the \textit{H} is followed by \textit{L}s. Thus it displays low specificity. For our evaluation purposes, we can view this extreme case as correct classification (true positive) if a single \textit{H} is detected during a high load section, and conversely, an incorrect classification (false positive) if a single one has been detected during the low load section. These two extremes are shown in Table~\ref{Tab:Spec}, along with a few intermediate behaviors which we describe next.
+
+To trade-off between sensitivity and specificity, the system could be designed to respond only if it sees a particular set of patterns. A few example patterns were evaluated, and their results are listed in Table~\ref{Tab:Spec}. These include patterns such as [\textit{H},\textit{H}] or [\textit{H},\textit{L},\textit{H}] which reduces the sensitivity of the system to the classifier outputs, making it less cautious. We can reduce system sensitivity even further by designing the system to mediate notifications only when it sees [\textit{H},\textit{H},\textit{H}] or [\textit{H},\textit{H},\textit{L},\textit{H}] from the classifier. We evaluate one more set of patterns to further desensitize the system. As the corresponding accuracy begins to drop, we might choose to design the system to respond to the pattern corresponding to the highest accuracy as a satisfactory trade-off.  
+
+
